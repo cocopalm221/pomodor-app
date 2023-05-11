@@ -9,14 +9,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int taotalSeconds = 1500;
+  static const twentyFiveMinutes = 1500; //1500을 복사할때 실수 방지
+  int taotalSeconds = twentyFiveMinutes;
   bool isRunning = false;
+  int totalPomodoros = 0;
   late Timer timer;
 
   void onTick(Timer timer) {
-    setState(() {
-      taotalSeconds = taotalSeconds - 1;
-    });
+    if (taotalSeconds == 0) {
+      setState(() {
+        totalPomodoros = totalPomodoros + 1;
+        isRunning = false;
+        taotalSeconds = twentyFiveMinutes;
+      }); //25분이 다 되면 pomodoros 1씩 증가, 다시 25분 초기화
+      timer.cancel(); //타이머가 0이 되면 타이머 취소
+    } else {
+      setState(() {
+        taotalSeconds = taotalSeconds - 1;
+      });
+    }
   }
 
   void onStartPressed() {
@@ -41,6 +52,15 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  String format(int seconds) {
+    var duration = Duration(seconds: seconds);
+    // return '$seconds';
+    return duration.toString().split(".").first.substring(2, 7);
+    //"." 뒤로 split 해서 00:25:00 , 0000 문자열 두개
+    //first 로 첫번째꺼만 00:25:00
+    //substring(2,7)로 25:00
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               alignment: Alignment.bottomCenter,
               child: Text(
-                '$taotalSeconds', //25:00
+                format(taotalSeconds), //25:00
                 style: TextStyle(
                     color: Theme.of(context).cardColor,
                     fontSize: 89,
@@ -93,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Pomodors',
+                          'Pomodoros',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -102,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         Text(
-                          '0',
+                          '$totalPomodoros',
                           style: TextStyle(
                             fontSize: 58,
                             fontWeight: FontWeight.w600,
