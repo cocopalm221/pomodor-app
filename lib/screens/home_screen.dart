@@ -10,6 +10,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int taotalSeconds = 1500;
+  bool isRunning = false;
   late Timer timer;
 
   void onTick(Timer timer) {
@@ -28,6 +29,16 @@ class _HomeScreenState extends State<HomeScreen> {
       //Timer 객체는 주기적으로 inTick 함수 실행, onTick함수에서 상태업데이트
       // late Timer timer는 작동중에 계속 실행, onTick 함수에서 상태 업데이트
     );
+    setState(() {
+      isRunning = true;
+    });
+  }
+
+  void onPausePressed() {
+    timer.cancel();
+    setState(() {
+      isRunning = false;
+    });
   }
 
   @override
@@ -55,8 +66,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: IconButton(
                 iconSize: 120,
                 color: Theme.of(context).cardColor,
-                onPressed: onStartPressed, //(){}
-                icon: const Icon(Icons.play_circle_outlined),
+                onPressed: isRunning ? onPausePressed : onStartPressed, //(){}
+                icon: Icon(isRunning
+                    ? Icons.pause_circle_outline
+                    : Icons.play_circle_outlined),
               ),
             ),
           ),
