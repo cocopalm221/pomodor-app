@@ -10,22 +10,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static const twentyFiveMinutes = 1500; //1500을 복사할때 실수 방지
-  int taotalSeconds = twentyFiveMinutes;
+  int totalSeconds = twentyFiveMinutes;
   bool isRunning = false;
   int totalPomodoros = 0;
   late Timer timer;
 
   void onTick(Timer timer) {
-    if (taotalSeconds == 0) {
+    if (totalSeconds == 0) {
       setState(() {
         totalPomodoros = totalPomodoros + 1;
         isRunning = false;
-        taotalSeconds = twentyFiveMinutes;
+        totalSeconds = twentyFiveMinutes;
       }); //25분이 다 되면 pomodoros 1씩 증가, 다시 25분 초기화
       timer.cancel(); //타이머가 0이 되면 타이머 취소
     } else {
       setState(() {
-        taotalSeconds = taotalSeconds - 1;
+        totalSeconds = totalSeconds - 1;
       });
     }
   }
@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void onStartPressed() {
     timer = Timer.periodic(
       const Duration(seconds: 1),
-      onTick,
+      onTick, //ontick() 하지말기 ()는 즉시실행
       //periodic 에서 첫번째는 시간, 두번째는 void 형태의 Timer를 인수로 받는 함수
       //late 키워드는 지연초기화, 나중에 사용할때 초기화됨
       //late timer는 onStartPressed()함수가 호출될 떄 초기화, Timer객체 생성
@@ -56,9 +56,17 @@ class _HomeScreenState extends State<HomeScreen> {
     var duration = Duration(seconds: seconds);
     // return '$seconds';
     return duration.toString().split(".").first.substring(2, 7);
-    //"." 뒤로 split 해서 00:25:00 , 0000 문자열 두개
-    //first 로 첫번째꺼만 00:25:00
+    //"." 뒤로 split 해서 0:25:00 , 0000 문자열 두개
+    //first 로 첫번째꺼만 0:25:00
     //substring(2,7)로 25:00
+  }
+
+  void refresh() {
+    setState(() {
+      isRunning = false;
+      totalSeconds = twentyFiveMinutes;
+    });
+    timer.cancel();
   }
 
   @override
@@ -72,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               alignment: Alignment.bottomCenter,
               child: Text(
-                format(taotalSeconds), //25:00
+                format(totalSeconds), //25:00
                 style: TextStyle(
                     color: Theme.of(context).cardColor,
                     fontSize: 89,
@@ -83,13 +91,25 @@ class _HomeScreenState extends State<HomeScreen> {
           Flexible(
             flex: 3,
             child: Center(
-              child: IconButton(
-                iconSize: 120,
-                color: Theme.of(context).cardColor,
-                onPressed: isRunning ? onPausePressed : onStartPressed, //(){}
-                icon: Icon(isRunning
-                    ? Icons.pause_circle_outline
-                    : Icons.play_circle_outlined),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    iconSize: 120,
+                    color: Theme.of(context).cardColor,
+                    onPressed:
+                        isRunning ? onPausePressed : onStartPressed, //(){}
+                    icon: Icon(isRunning
+                        ? Icons.pause_circle_outline
+                        : Icons.play_circle_outlined),
+                  ),
+                  IconButton(
+                    iconSize: 60,
+                    color: Theme.of(context).cardColor,
+                    onPressed: refresh,
+                    icon: const Icon(Icons.restore),
+                  ),
+                ],
               ),
             ),
           ),
